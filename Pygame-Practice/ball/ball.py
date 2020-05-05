@@ -49,6 +49,8 @@ def main():
 
         # 更新游戏画面
         pygame.display.update()
+        # 延迟 5 毫秒，避免球体移动太快
+        pygame.time.delay(5)
 
 
 if __name__ == '__main__':
