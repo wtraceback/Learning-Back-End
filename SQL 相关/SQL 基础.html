@@ -1,0 +1,424 @@
+SQL(Structured Query Language)  是结构化查询语言的缩写
+
+
+    SQL 是用于访问和处理关系数据库的计算机标准语言，凡是涉及到操作关系数据库，都必须通过 SQL 来完成
+        SQL 语句既可以查询数据库中的数据，也可以添加、更新和删除数据库中的数据，还可以对数据库进行管理和维护操作
+
+    目前 SQL 数据库仍然承担了各种应用程序的核心数据存储，而 NoSQL 数据库作为 SQL 数据库的补充，两者不再是二选一的问题，而是主从关系
+        关系型数据库：
+            商用数据库，例如：Oracle，SQL Server，DB2 等
+            开源数据库，例如：MySQL，PostgreSQL 等
+            桌面数据库，以微软 Access 为代表，适合桌面应用程序使用
+            嵌入式数据库，以 Sqlite 为代表，适合手机应用和桌面程序
+        NoSQL 数据库（非 SQL 的数据库）：
+            MongoDB、Cassandra、Dynamo 等
+
+
+    数据模型：
+        数据库是按照数据结构来组织、存储和管理数据，实际上，数据库一共有三种模型：
+            层次模型
+            网状模型
+            关系模型
+
+        关系数据库的关系模型是基于数学理论建立的。
+        关系数据库是建立在关系模型上的。而关系模型本质上就是若干个存储数据的二维表，可以把它们看作很多 Excel 表
+            表的每一行称为记录（Record），记录是一个逻辑意义上的数据
+            表的每一列称为字段（Column），同一个表的每一行记录都拥有相同的若干字段
+
+
+    SQL 语言关键字不区分大小写
+        SQL 关键字是不区分大小写的，但是针对不同的数据库，对于表名和列名，有的数据库区分大小写，有的数据库不区分大小写。
+        同一个数据库，有的在 Linux 上区分大小写，有的在 Windows 上不区分大小写
+        约定：SQL 关键字总是大写，以示突出，表名和列名均使用小写。
+
+
+    SQL 方言
+        不同的关系数据库对于 SQL 标准的支持程度都不一样。而各个数据库支持的各自扩展的功能，通常我们把它们称之为“方言”
+        在使用标准 SQL 的核心功能，那么所有数据库通常都可以执行。不常用的 SQL 功能，就得针对特定数据库中对应的方言了
+
+
+    SQL DML 和 DDL
+        可以把 SQL 分为两个部分：数据操作语言 (DML) 和 数据定义语言 (DDL)
+        SQL 的 DML 部分：（增删查改）
+            INSERT INTO - 向数据库表中插入数据
+            DELETE - 从数据库表中删除数据
+            SELECT - 从数据库表中获取数据
+            UPDATE - 更新数据库表中的数据
+
+        SQL 的 DDL 部分：
+            CREATE DATABASE - 创建新数据库
+            ALTER DATABASE - 修改数据库
+            CREATE TABLE - 创建新表
+            ALTER TABLE - 变更（改变）数据库表
+            DROP TABLE - 删除表
+            CREATE INDEX - 创建索引（搜索键）
+            DROP INDEX - 删除索引
+
+
+
+    DML 部分
+        查询数据
+            注意：查询结果也是一个二维表，它包含列名和每一行的数据
+            SELECT 语句
+                SELECT column_name FROM table_name                      // 单列
+                SELECT column_name, column_name2 FROM table_name        // 多列
+                SELECT * FROM table_name                                // 所有列
+                SELECT DISTINCT column_name FROM table_name             // 对获取到的数据去重
+
+                条件查询
+                    WHERE 子句用于有条件地从表中选取数据
+                        SQL 使用单引号来环绕文本值。如果是数值，请不要使用引号
+                        SELECT column_name FROM table_name WHERE column_name='value'
+                        SELECT * FROM table_name WHERE column_name>1965
+
+                        运算符
+                            =	            等于
+                            <>	           不等于
+                            >	           大于
+                            <	           小于
+                            >=	           大于等于
+                            <=	           小于等于
+                            BETWEEN	       在某个范围内
+                            LIKE	       搜索某种模式
+
+
+                        AND、OR 和 NOT 运算符用于基于一个以上的条件对记录进行过滤
+
+
+                        ORDER BY 语句用于对结果集进行排序。
+                            SELECT column_name FROM table_name ORDER BY column_name
+                            SELECT column_name1, column_name2 FROM table_name ORDER BY column_name1, column_name2
+                                首先按照 列名称1 排序，如果列名称1有重复的数据，则重复的数据再按照 列名称2 排序
+                            SELECT column_name1, column_name2 FROM table_name ORDER BY column_name1 DESC, column_name2 ASC
+                                首先按照 列名称1 降序排序，如果列名称1有重复的数据，则重复的数据再按照 列名称2 升序排序
+
+                            ORDER BY 语句默认按照升序对记录进行排序。如果希望按照降序对记录进行排序，可以使用 DESC 关键字
+
+
+                        GROUP BY 语句用于对指定的列进行分组
+                            SELECT * FROM table_name GROUP BY column_name;
+
+
+                        LIMIT（分页查询）
+                            用于规定要返回的记录的数目
+                            SELECT column_name(s) FROM table_name LIMIT number1 OFFSET number2
+
+                            LIMIT 总是设定为 pageSize
+                            OFFSET 计算公式为 pageSize * (pageIndex - 1)
+
+                            限制每页最多十条记录，显示第一页的数据 LIMIT 10 === LIMIT 10 OFFSET 0
+                            限制每页最多十条记录，显示第二页的数据 LIMIT 10 OFFSET 10
+                                pageIndex 从 1 开始
+
+
+                        LIKE 操作符
+                            LIKE 操作符用于在 WHERE 子句中搜索列中的指定模式。
+                                "%" 可用于定义通配符（模式中缺少的字母）。
+                                a%  匹配对应列 a 开头的数据
+                                %a  匹配对应列 a 结尾的数据
+                                %a% 匹配对应列包含 a 的数据
+                                    SELECT column_name(s) FROM table_name WHERE column_name LIKE pattern
+
+                                NOT 关键字，选取不包含的数据
+                                    SELECT column_name(s) FROM table_name WHERE column_name NOT LIKE pattern
+
+                                通配符
+                                    %                                   替代一个或多个字符
+                                    _                                   仅替代一个字符
+                                    [charlist]                          字符列中的任何单一字符
+                                    [^charlist] 或者 [!charlist]        不在字符列中的任何单一字符
+
+
+                        IN 操作符
+                            IN 操作符允许我们在 WHERE 子句中规定多个值。
+
+                            SELECT column_name(s) FROM table_name WHERE column_name IN (value1, value2, ...)
+
+
+                        BETWEEN 操作符
+                            操作符 BETWEEN ... AND 会选取介于两个值之间的数据范围。这些值可以是数值、文本或者日期。
+                            在范围内
+                                SELECT column_name(s) FROM table_name WHERE column_name BETWEEN value1 AND value2
+                            不在范围内（NOT 操作符）
+                                SELECT column_name(s) FROM table_name WHERE column_name NOT BETWEEN value1 AND value2
+
+
+                        AS 操作符
+                            可以为列名称和表名称指定别名（Alias）。
+                            表的 SQL Alias 语法 （在多个表格时，简化表名的写法，方便各个表列名的编写）
+                                SELECT column_name(s) FROM table_name AS alias_name
+                            列的 SQL Alias 语法（获取到的数据的列名称的改变）
+                                SELECT column_name AS alias_name FROM table_name
+
+
+                        JOIN 关键字
+                            连接是另一种类型的多表查询。连接查询对多个表进行 JOIN 运算，简单地说，就是先确定一个主表作为结果集，
+                                然后，把其他表的行有选择性地“连接”在主表结果集上
+
+                            INNER JOIN  内连接（两个表的交集）
+                                INNER JOIN 与 JOIN 是相同的。
+                                在表中存在至少一个匹配时，INNER JOIN 关键字返回行。
+                                    SELECT t1.column_name1(s) t2.column_name2(s) FROM table_name1 AS t1
+                                    INNER JOIN table_name2 AS t2 ON t1.column_name1=t2.column_name2
+
+                                    等同于下方的 SQL 语句
+                                    SELECT t1.column1, t1.column2, t2.column1 FROM table_name1 as t1, table_name1 as t2 WHERE t1.column1 = t2.column1
+
+                                    INNER JOIN查询的写法是：
+                                        1、先确定主表，仍然使用FROM <表1>的语法
+                                        2、再确定需要连接的表，使用INNER JOIN <表2>的语法
+                                        3、然后确定连接条件，使用ON <条件...>，这里的条件是t1.column1 = t2.column2，表示table1表的column1列与table2表的column2列相同的行需要连接
+                                        4、可选：加上WHERE子句、ORDER BY等子句
+
+                            LEFT JOIN 关键字（左表的全部 --> 包含了两个表的交集）
+                                LEFT JOIN 关键字从左表 (table_name1) 那里返回所有的行，即使在右表 (table_name2) 中没有匹配的行
+                                SELECT column_name(s) FROM table_name1
+                                LEFT JOIN table_name2 ON table_name1.column_name=table_name2.column_name
+
+                            RIGHT JOIN 关键字（右表的全部 --> 包含了两个表的交集）
+                                RIGHT JOIN 关键字会右表 (table_name2) 那里返回所有的行，即使在左表 (table_name1) 中没有匹配的行
+                                SELECT column_name(s) FROM table_name1
+                                RIGHT JOIN table_name2 ON table_name1.column_name=table_name2.column_name
+
+                            FULL JOIN 关键字（两个表的并集）
+                               只要其中某个表存在匹配，FULL JOIN 关键字就会返回行
+                               SELECT column_name(s) FROM table_name1
+                               FULL JOIN table_name2 ON table_name1.column_name=table_name2.column_name
+
+
+                        UNION 操作符
+                            UNION 操作符用于合并两个或多个 SELECT 语句的结果集。
+                                UNION 内部的 SELECT 语句必须拥有相同数量的列。列也必须拥有相似的数据类型。同时，每条 SELECT 语句中的列的顺序必须相同。
+                                SELECT column_name(s) FROM table_name1
+                                UNION
+                                SELECT column_name(s) FROM table_name2
+
+                                UNION 结果集中的列名总是等于 UNION 中第一个 SELECT 语句中的列名。
+
+
+        修改数据
+            INSERT INTO 语句
+                使用 INSERT，可以一次向一个表中插入一条或多条记录。
+                    INSERT INTO table_name VALUES (值1, 值2,....), (值1, 值2,....)
+
+                    我们也可以指定所要插入数据的列：（如果列出列1、列2，则插入新行对应的列有值，其他未插入的列无值，显示为 NULL）
+                        INSERT INTO table_name (列1, 列2,...) VALUES (值1, 值2,....)
+
+
+            Update 语句
+                使用 UPDATE，可以一次更新表中的一条或多条记录。
+                    UPDATE table_name SET 列名称=新值 WHERE 列名称=某值
+
+
+            DELETE 语句
+                使用 DELETE，可以一次删除表中的一条或多条记录。
+                    DELETE FROM table_name WHERE 列名称=值
+
+                删除所有行
+                    DELETE FROM table_name
+                    DELETE * FROM table_name
+
+            SELECT INTO 语句
+                SELECT INTO 语句从一个表中选取数据，然后把数据插入另一个表中。
+                SELECT * INTO new_table_name [IN externaldatabase] FROM old_tablename
+
+
+
+    DDL 部分
+        CREATE DATABASE 语句
+            CREATE DATABASE 用于创建数据库。
+            CREATE DATABASE database_name
+
+
+        CREATE TABLE 语句
+            CREATE TABLE 语句用于创建数据库中的表。
+
+            CREATE TABLE table_name
+            (
+                列名称1 数据类型,
+                列名称2 数据类型,
+                列名称3 数据类型,
+                ...
+            )
+
+
+        CREATE INDEX 语句用于在表中创建索引。
+            索引是关系数据库中对某一列或多个列的值进行预排序的数据结构，在不读取整个表的情况下，索引使数据库应用程序可以更快地查找数据。
+            用户无法看到索引，它们只能被用来加速搜索/查询。但缺点是在插入、更新和删除记录时，
+                需要同时修改索引，且索引越多，插入、更新和删除记录的速度就越慢。
+
+            ALTER TABLE table_name
+            ADD INDEX index_name (column_name1, column_name2);
+
+            ALTER TABLE table_name
+            ADD UNIQUE INDEX index_name (column_name1);
+
+
+        ALTER TABLE 语句
+            ALTER TABLE 语句用于在已有的表中添加、修改或删除列。
+            添加：
+                ALTER TABLE table_name ADD column_name datatype
+            删除：
+                ALTER TABLE table_name DROP COLUMN column_name
+            修改：
+                ALTER TABLE table_name ALTER COLUMN column_name datatype
+
+
+        DROP 语句
+            通过使用 DROP 语句，可以轻松地删除索引、表和数据库。
+                DROP INDEX 语句
+                    DROP INDEX index_name
+                DROP TABLE 语句
+                    DROP TABLE 语句用于删除表（表的结构、属性以及索引也会被删除）
+                    DROP TABLE table_name
+                DROP DATABASE 语句
+                    DROP DATABASE 语句用于删除数据库：
+                    DROP DATABASE 数据库名称
+                TRUNCATE TABLE 语句
+                    仅仅需要除去表内的数据，但并不删除表本身
+                    TRUNCATE TABLE table_name
+
+
+
+    AUTO INCREMENT 字段
+        Auto-increment 会在新记录插入表中时生成一个唯一的数字。
+        CREATE TABLE table_name
+        (
+            column_name int NOT NULL AUTO_INCREMENT,
+        )
+
+
+
+    约束 (Constraints)
+        约束用于限制加入表的数据的类型。
+
+            NOT NULL 约束
+                NOT NULL 约束强制列不接受 NULL 值，强制字段始终包含值。这意味着，如果不向字段添加值，就无法插入新记录或者更新记录。
+
+                CREATE TABLE database_name
+                (
+                    列名称1 数据类型 NOT NULL,
+                )
+
+            UNIQUE 约束
+                UNIQUE 和 PRIMARY KEY 约束均为列或列集合提供了唯一性的保证。
+                PRIMARY KEY 拥有自动定义的 UNIQUE 约束。
+                请注意，每个表可以有多个 UNIQUE 约束，但是每个表只能有一个 PRIMARY KEY 约束。
+
+                创建表时约束 UNIQUE
+                    CREATE TABLE table_name
+                    (
+                        column_name int NOT NULL UNIQUE,
+                    )
+
+                创建了表后添加 unique 约束
+                    ALTER TABLE table_name
+                    ADD CONSTRAINT unique_name UNIQUE (column_name1, column_name2)
+
+                撤销 UNIQUE 约束
+                    ALTER TABLE table_name
+                    DROP CONSTRAINT unique_name
+
+            PRIMARY KEY 约束
+                主键必须包含唯一的值。
+                主键列不能包含 NULL 值。
+                每个表都应该有一个主键，并且每个表只能有一个主键。
+
+                创建表时
+                    CREATE TABLE table_name
+                    (
+                        column_name int NOT NULL PRIMARY KEY,
+                    )
+
+                已创建表时(在表首次创建时，必须已经声明了不包含 NULL 值)
+                    ALTER TABLE table_name
+                    ADD CONSTRAINT constraint_name PRIMARY KEY (column_name)
+
+                撤销 PRIMARY KEY 约束
+                    ALTER TABLE table_name
+                    DROP CONSTRAINT constraint_name
+
+            FOREIGN KEY 约束
+                一个表中的 FOREIGN KEY 指向另一个表中的 PRIMARY KEY
+                FOREIGN KEY 约束用于预防破坏表之间连接的动作。
+                FOREIGN KEY 约束也能防止非法数据插入外键列，因为它必须是它指向的那个表中的值之一。
+
+                在表2已存在时
+                    ALTER TABLE table_name2
+                    ADD CONSTRAINT foreigh_name
+                    FOREIGN KEY (column_name)
+                    REFERENCES table_name1(table_name1_column_name)
+
+
+                撤销 FOREIGN KEY 约束
+                    ALTER TABLE table_name2
+                    DROP FOREIGN KEY foreigh_name
+
+            CHECK 约束
+                CHECK 约束用于限制列中的值的范围。
+                如果对单个列定义 CHECK 约束，那么该列只允许特定的值。
+                如果对一个表定义 CHECK 约束，那么此约束会在特定的列中对值进行限制。
+
+                创建时约束
+                CREATE TABLE table_name
+                (
+                    column_name int NOT NULL CHECK (column_name > 0),
+                )
+
+                创建后约束多列：
+                ALTER TABLE table_name
+                ADD CONSTRAINT constraint_name CHECK (column_name1>0 AND column_name2='Sandnes')
+
+                撤销 CHECK 约束
+                ALTER TABLE table_name
+                DROP CONSTRAINT constraint_name
+
+            DEFAULT 约束
+                DEFAULT 约束用于向列中插入默认值。
+                如果没有规定其他的值，那么会将默认值添加到所有的新记录。
+
+                创建时约束
+                CREATE TABLE table_name
+                (
+                    column_name varchar(255) DEFAULT 'Sandnes'
+                )
+
+                创建后约束：
+                ALTER TABLE table_name
+                ALTER COLUMN column_name SET DEFAULT 'SANDNES'
+
+                撤销 DEFAULT 约束
+                ALTER TABLE table_name
+                ALTER COLUMN column_name DROP DEFAULT
+
+
+
+        SQL 函数
+            SQL 拥有很多可用于计数和计算的内建函数
+
+                SELECT function(列) FROM 表
+                SELECT SUM(column_name) FROM table_name
+                SELECT COUNT(*) num FROM table_name    给返回列起别名为 num，默认的返回列名为 COUNT(*)
+
+                COUNT(column)           返回某列的行数(不包括 NULL 值)     没有匹配行，则返回 0
+                SUM(column)             返回某列的总和                    没有匹配行，则返回 NULL
+                MAX(column)             返回某列的最高值                  没有匹配行，则返回 NULL
+                MIN(column)             返回某列的最低值                  没有匹配行，则返回 NULL
+                AVG(column)             返回某列的平均值                  没有匹配行，则返回 NULL
+
+
+
+    事务
+        在执行 SQL 语句的时候，某些业务要求，一系列操作必须全部执行，而不能仅执行一部分，如果第一条语句成功，第二条语句失败，就必须全部撤销。
+            这种把多条语句作为一个整体进行操作的功能，被称为数据库事务。
+
+            对于单条 SQL 语句，数据库系统自动将其作为一个事务执行，这种事务被称为隐式事务。
+            要手动把多条 SQL 语句作为一个事务执行，使用 BEGIN 开启一个事务，使用 COMMIT 提交一个事务，这种事务被称为显式事务
+            BEGIN;
+            UPDATE table1 SET column = column - 100 WHERE column2 = 1;
+            UPDATE table1 SET column = column + 100 WHERE column2 = 2;
+            COMMIT;
+
+        隔离级别
+            对于两个并发执行的事务，如果涉及到操作同一条记录的时候，可能会发生问题。因为并发操作会带来数据的不一致性，包括脏读、不可重复读、幻读等。
+            数据库系统提供了隔离级别来让我们有针对性地选择事务的隔离级别，避免数据不一致的问题。
