@@ -53,6 +53,12 @@
         e、退出 MySQL 命令行
             exit 或 quit
 
+        f、修改密码
+            ALTER USER 'root'@'localhost' IDENTIFIED BY 'new_password';
+
+        g、停止 MySQL 服务器命令
+            net stop mysql
+
 
 安装 MySQL 过程中可能遇到的问题
     在安装 MySQL 8 的时候，报了一个错误：
@@ -67,3 +73,12 @@
     问题所在：
         在 C:\Windows\System32 目录中不存在 VCRUNTIME140_1.dll 文件
         安装完成后，就可以在 C:\Windows\System32 中找到文件 VCRUNTIME140_1.dll
+
+
+
+MySQL 客户端 图形化管理工具
+    MySQL Workbench
+        https://dev.mysql.com/downloads/workbench/
+
+    HeidiSQL    （有 安装版 和 免安装版）
+        https://www.heidisql.com/download.php
