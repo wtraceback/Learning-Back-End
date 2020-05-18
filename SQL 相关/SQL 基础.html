@@ -59,6 +59,11 @@ SQL(Structured Query Language)  是结构化查询语言的缩写
     DML 部分
         查询数据
             注意：查询结果也是一个二维表，它包含列名和每一行的数据
+
+            多表查询：一次查询两个表的数据，查询的结果也是一个二维表，它是 表1 和 表2 的“乘积”，
+            即 表1 的每一行与 表2 的每一行都两两拼在一起返回。结果集的列数是 表1 和 表2 的列数之和，
+            行数是 表1 和 表2 的行数之积。这种多表查询又称笛卡尔查询。
+
             SELECT 语句
                 SELECT column_name FROM table_name                      // 单列
                 SELECT column_name, column_name2 FROM table_name        // 多列
