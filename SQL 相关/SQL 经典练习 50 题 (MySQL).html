@@ -189,3 +189,34 @@
     44. 查询本月过生日的学生
 
     45. 查询下月过生日的学生
+
+
+练习题和对应的 MySQL 语句：
+    1. 查询" 01 "课程比" 02 "课程成绩高的学生的信息及课程分数
+        select st.*, a.score AS a_score, b.score AS b_score
+        from students AS st, scores AS a, scores AS b
+        where st.id=a.student_id
+        and st.id=b.student_id
+        and a.course_id='01'
+        and b.course_id='02'
+        and a.score>b.score;
+
+    1.1 查询同时存在" 01 "课程和" 02 "课程的情况
+        select st.*, a.score AS a_score, a.course_id, b.score AS b_score, b.course_id
+        from students AS st, scores AS a, scores AS b
+        where st.id=a.student_id
+        and st.id=b.student_id
+        and a.course_id='01'
+        and b.course_id='02';
+
+        或者：
+        select st.*, a.score AS a_score, a.course_id, b.score AS b_score, b.course_id
+        from students AS st
+        JOIN scores as a ON st.id=a.student_id and a.course_id='01'
+        JOIN scores as b ON st.id=b.student_id and b.course_id='02';
+
+    1.2 查询存在" 01 "课程但可能不存在" 02 "课程的情况(不存在时显示为 null )
+        select st.*, a.score AS a_score, a.course_id, b.score AS b_score, b.course_id
+        from students AS st
+        JOIN scores as a ON st.id=a.student_id and a.course_id='01'
+        LEFT JOIN scores as b ON st.id=b.student_id and b.course_id='02';
