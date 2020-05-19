@@ -94,7 +94,7 @@
 
     2. 查询平均成绩大于等于 60 分的同学的学生编号和学生姓名和平均成绩
 
-    3. 查询在 SC 表存在成绩的学生信息
+    3. 查询在 scores 表存在成绩的学生信息
 
     4. 查询所有同学的学生编号、学生姓名、选课总数、所有课程的总成绩(没成绩的显示为 null )
 
@@ -220,3 +220,49 @@
         from students AS st
         JOIN scores as a ON st.id=a.student_id and a.course_id='01'
         LEFT JOIN scores as b ON st.id=b.student_id and b.course_id='02';
+
+    1.3 查询不存在" 01 "课程但存在" 02 "课程的情况
+        select st.*, a.score, a.course_id
+        from students AS st, scores AS a
+        where st.id=a.student_id
+        and st.id not in (select student_id from scores where scores.course_id='01')
+        and a.course_id='02';
+
+    2. 查询平均成绩大于等于 60 分的同学的学生编号和学生姓名和平均成绩
+        select st.*, a.avg_score
+        from students AS st, (SELECT scores.student_id, ROUND(AVG(score)) as avg_score FROM scores GROUP BY student_id) AS a
+        where st.id=a.student_id and a.avg_score>=60;
+
+    3. 查询在 scores 表存在成绩的学生信息
+        select st.*
+        from students AS st
+        where st.id in (select distinct student_id from scores);
+
+    4. 查询所有同学的学生编号、学生姓名、选课总数、所有课程的总成绩(没成绩的显示为 null )
+        select st.*, b.coursecount, b.sumscore
+        from students AS st
+        LEFT JOIN (select a.student_id, COUNT(a.course_id) as coursecount, SUM(a.score) as sumscore from scores AS a group by a.student_id) AS b
+        ON st.id=b.student_id
+        order by st.id;
+
+    4.1 查有成绩的学生信息
+        好像跟上面的第三题是一样的
+        select st.*
+        from students AS st
+        where EXISTS (select a.student_id from scores AS a where a.student_id=st.id);
+
+    5. 查询「李」姓老师的数量 
+        select COUNT(*) AS li_count from teachers where name LIKE '李%';
+
+    6. 查询学过「张三」老师授课的同学的信息 
+        select st.* from students AS st, scores AS a
+        where st.id=a.student_id
+        and a.course_id in (select id from courses where teacher_id in (select id from teachers where name='张三'));
+
+    7. 查询没有学全所有课程的同学的信息 
+        select st.* from students as st
+        where st.id not in (select student_id from scores group by scores.student_id having count(scores.course_id)=(select count(id) from courses));
+
+    8. 查询至少有一门课与学号为" 01 "的同学所学相同的同学的信息 
+        select * from Students
+        where id in (select distinct student_id from scores where student_id<>'01' and course_id in (select course_id from scores where student_id='01'));
