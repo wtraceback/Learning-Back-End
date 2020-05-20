@@ -241,7 +241,8 @@
     4. 查询所有同学的学生编号、学生姓名、选课总数、所有课程的总成绩(没成绩的显示为 null )
         select st.*, b.coursecount, b.sumscore
         from students AS st
-        LEFT JOIN (select a.student_id, COUNT(a.course_id) as coursecount, SUM(a.score) as sumscore from scores AS a group by a.student_id) AS b
+        LEFT JOIN (select a.student_id, COUNT(a.course_id) as coursecount, SUM(a.score) as sumscore
+        from scores AS a group by a.student_id) AS b
         ON st.id=b.student_id
         order by st.id;
 
@@ -261,8 +262,41 @@
 
     7. 查询没有学全所有课程的同学的信息 
         select st.* from students as st
-        where st.id not in (select student_id from scores group by scores.student_id having count(scores.course_id)=(select count(id) from courses));
+        where st.id not in (select student_id from scores group by scores.student_id
+        having count(scores.course_id)=(select count(id) from courses));
 
     8. 查询至少有一门课与学号为" 01 "的同学所学相同的同学的信息 
         select * from Students
-        where id in (select distinct student_id from scores where student_id<>'01' and course_id in (select course_id from scores where student_id='01'));
+        where id in (select distinct student_id from scores where student_id<>'01'
+        and course_id in (select course_id from scores where student_id='01'));
+
+    9. 查询和" 01 "号的同学学习的课程完全相同的其他同学的信息
+        目前还想不出方法
+
+    10. 查询没学过"张三"老师讲授的任一门课程的学生姓名
+        select st.name from students AS st
+        where st.id not in (select student_id from scores
+        where course_id=(select id from courses where teacher_id in (select id from teachers where name='张三')));
+
+    11. 查询两门及其以上不及格课程的同学的学号，姓名及其平均成绩
+        select st.*, AVG(a.score) from students as st
+        left join scores as a on a.student_id=st.id
+        where st.id in
+        (select b.student_id from (select * from scores where score<60) AS b group by b.student_id having count(b.student_id)>=2)
+        group by st.id;
+
+    12. 检索" 01 "课程分数小于 60，按分数降序排列的学生信息
+        select st.*, a.score from students AS st, (select * from scores where course_id='01') AS a
+        where st.id=a.student_id and a.score<60
+        order by a.score desc;
+
+    13. 按平均成绩从高到低显示所有学生的所有课程的成绩以及平均成绩
+        select st.*,
+        sum(case when a.course_id='01' then a.score else null end) as 语文,
+        sum(case when a.course_id='02' then a.score else null end) as 数学,
+        sum(case when a.course_id='03' then a.score else null end) as 英语,
+        ROUND(AVG(a.score), 2) as avg_score
+        from students as st
+        left join scores as a on st.id=a.student_id
+        group by st.id, st.name
+        order by avg_score desc;
