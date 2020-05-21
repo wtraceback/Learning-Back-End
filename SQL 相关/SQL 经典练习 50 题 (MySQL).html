@@ -298,5 +298,38 @@
         ROUND(AVG(a.score), 2) as avg_score
         from students as st
         left join scores as a on st.id=a.student_id
-        group by st.id, st.name
+        group by st.id
         order by avg_score desc;
+
+        网上看到别人的一个写法
+        select a.student_id,
+                (select score from scores where student_id=a.student_id and course_id='01') as 语文,
+        		(select score from scores where student_id=a.student_id and course_id='02') as 数学,
+        		(select score from scores where student_id=a.student_id and course_id='03') as 英语,
+        		round(avg(score), 2) as 平均分
+        from scores as a
+        GROUP BY a.student_id
+        ORDER BY 平均分 DESC;
+
+
+    19. 查询每门课程被选修的学生数
+        select b.course_id, a.name, count(b.student_id) as 人数
+        from courses as a, scores as b
+        where a.id=b.course_id
+        group by b.course_id;
+
+    20. 查询出只选修两门课程的学生学号和姓名
+        select id, name from students
+        where id in (select student_id from scores as a group by a.student_id having count(a.course_id)=2);
+
+    21. 查询男生、女生人数
+        select gender, count(gender) as gender_count from students group by gender;
+
+    22. 查询名字中含有「风」字的学生信息
+        select * from students where name like '%风%';
+
+    23. 查询同名同性学生名单，并统计同名人数
+        select name, gender, count(id) as num
+        from students
+        group by name, gender
+        having count(id)>=2;
