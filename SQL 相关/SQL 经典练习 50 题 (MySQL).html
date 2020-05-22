@@ -333,3 +333,58 @@
         from students
         group by name, gender
         having count(id)>=2;
+
+    24. 查询 1990 年出生的学生名单
+        select name from students where birth like '%1990%';
+
+    25. 查询每门课程的平均成绩，结果按平均成绩降序排列，平均成绩相同时，按课程编号升序排列
+        select course_id, AVG(score) as avg_score
+        from scores
+        group by course_id
+        order by avg_score desc, course_id;
+
+    26. 查询平均成绩大于等于 85 的所有学生的学号、姓名和平均成绩
+        select st.id, st.name, ROUND(avg(a.score), 2) as avg_score
+        from students as st
+        left join scores as a on st.id=a.student_id
+        group by st.id
+        having avg_score>=85;
+
+    27. 查询课程名称为「数学」，且分数低于 60 的学生姓名和分数
+        select st.name, a.score from students as st
+        join scores as a on a.student_id=st.id
+        where a.course_id=(select id from courses where name='数学') and a.score<60;
+
+    28. 查询所有学生的课程及分数情况（存在学生没成绩，没选课的情况）
+        select st.*,
+        sum(case when a.course_id='01' then a.score else null end) as 语文,
+        sum(case when a.course_id='02' then a.score else null end) as 数学,
+        sum(case when a.course_id='03' then a.score else null end) as 英语
+        from students as st
+        left join scores as a on a.student_id=st.id
+        group by st.id;
+
+    29. 查询任何一门课程成绩在 70 分以上的姓名、课程名称和分数
+        select co.name, st.name, a.score
+        from students as st, courses as co
+        join scores as a on a.course_id=co.id
+        where st.id=a.student_id and a.score>=70;
+
+        解法二:
+        select co.name as 科目, st.name, a.score
+        from courses as co
+        left join scores as a on a.course_id=co.id
+        left join students as st on st.id=a.student_id
+        where a.score>=70;
+
+    30. 查询不及格的课程
+        select a.student_id, co.name as 科目, a.course_id, a.score as 不及格分数
+        from scores as a
+        left join courses as co on a.course_id=co.id
+        where a.score<60;
+
+    31. 查询课程编号为 01 且课程成绩在 80 分以上的学生的学号和姓名
+        select st.id, st.name, a.course_id, a.score
+        from students as st
+        left join scores as a on a.student_id=st.id and a.course_id='01'
+        where a.score>=80;
