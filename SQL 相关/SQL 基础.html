@@ -20,6 +20,7 @@ SQL(Structured Query Language)  是结构化查询语言的缩写
             网状模型
             关系模型
 
+        关系表的设计就是要把信息分解成多个表，一类数据表。各表通过某些共同的值互相关联。所以才叫关系数据库。
         关系数据库的关系模型是基于数学理论建立的。
         关系数据库是建立在关系模型上的。而关系模型本质上就是若干个存储数据的二维表，可以把它们看作很多 Excel 表
             表的每一行称为记录（Record），记录是一个逻辑意义上的数据
@@ -27,9 +28,14 @@ SQL(Structured Query Language)  是结构化查询语言的缩写
 
 
     SQL 语言关键字不区分大小写
-        SQL 关键字是不区分大小写的，但是针对不同的数据库，对于表名和列名，有的数据库区分大小写，有的数据库不区分大小写。
+        SQL 关键字是不区分大小写的；但是对于表名和列名，有的数据库区分大小写，有的数据库不区分大小写。
         同一个数据库，有的在 Linux 上区分大小写，有的在 Windows 上不区分大小写
         约定：SQL 关键字总是大写，以示突出，表名和列名均使用小写。
+
+
+    SQL 注释
+        --      单行注释
+        /**/    多行注释
 
 
     SQL 方言
@@ -90,7 +96,39 @@ SQL(Structured Query Language)  是结构化查询语言的缩写
                         AND、OR 和 NOT 运算符用于基于一个以上的条件对记录进行过滤
 
 
-                        ORDER BY 语句用于对结果集进行排序。
+                        DISTINCT 关键字
+                            在表中，可能会包含重复值。使用关键词 DISTINCT 可以返回唯一不同的值
+                            SELECT DISTINCT column_name FROM table_name             // 对获取到的数据去重
+
+                            但是有特殊的情况: DISTINCT 默认作用于所有列
+                            SELECT DISTINCT column_name1, column_name2 FROM table_name
+                            (检索两列，由于指定的两列不完全相同，因此 DISTINCT 在此情况下是无效的，所有的行还是会被检索出来)
+
+
+                        GROUP BY 语句用于对指定的列进行分组
+                            GROUP BY 子句必须出现在 WHERE 子句之后，ORDER BY 子句之前
+                            SELECT * FROM table_name GROUP BY column_name, column_name2;
+
+
+                        HAVING 过滤分组
+                            HAVING 非常类似于 WHERE，如果不指定 GROUP BY，则大多数 DBMS 会同等对待它们，也就是大部分的 WHERE 子句都可以用 HAVING 来替代。
+                            因此，使用 HAVING 时应该结合 GROUP BY 子句，而 WHERE 子句用于标准的行级过滤。
+
+                            两者之间的差别是：
+                                WHERE 过滤行，而 HAVING 过滤分组。
+                                WHERE 在数据分组前进行过滤，HAVING 在数据分组后进行过滤。这是一个重要的区别，WHERE 排除的行不包括在分组中。这可能会改变计算值，
+                                    从而影响 HAVING 子句中基于这些值过滤掉的分组。
+
+
+                        ORDER BY 语句用于对结果集进行排序。（通常 ORDER BY 都是放在 SELECT 语句的最后一句，不然会出现错误消息）
+                            一般 ORDER BY 子句使用的列将是为显示而选择的列，但是，也可以用非检索列来排序
+                            支持的排序顺序方法
+                                列名排序
+                                相对列位置排序（1、2、3...）
+                            排序方向
+                                降序：使用 DESC 关键字
+                                升序：默认为升序；或使用 ASC 关键字
+
                             SELECT column_name FROM table_name ORDER BY column_name
                             SELECT column_name1, column_name2 FROM table_name ORDER BY column_name1, column_name2
                                 首先按照 列名称1 排序，如果列名称1有重复的数据，则重复的数据再按照 列名称2 排序
@@ -98,10 +136,6 @@ SQL(Structured Query Language)  是结构化查询语言的缩写
                                 首先按照 列名称1 降序排序，如果列名称1有重复的数据，则重复的数据再按照 列名称2 升序排序
 
                             ORDER BY 语句默认按照升序对记录进行排序。如果希望按照降序对记录进行排序，可以使用 DESC 关键字
-
-
-                        GROUP BY 语句用于对指定的列进行分组
-                            SELECT * FROM table_name GROUP BY column_name;
 
 
                         LIMIT（分页查询）
@@ -127,15 +161,15 @@ SQL(Structured Query Language)  是结构化查询语言的缩写
                                 NOT 关键字，选取不包含的数据
                                     SELECT column_name(s) FROM table_name WHERE column_name NOT LIKE pattern
 
-                                通配符
-                                    %                                   替代一个或多个字符
+                                通配符（通配符搜索只能用于文本字段，非文本数据类型字段不能使用通配符搜索）
+                                    %                                   能匹配 0 个、1 个或多个字符
                                     _                                   仅替代一个字符
-                                    [charlist]                          字符列中的任何单一字符
-                                    [^charlist] 或者 [!charlist]        不在字符列中的任何单一字符
+                                    [charlist]                          字符列中的任意字符只要存在于中括号中，都算匹配
+                                    ^[charlist] 或者 ![charlist]        不在字符列中的任何单一字符
 
 
                         IN 操作符
-                            IN 操作符允许我们在 WHERE 子句中规定多个值。
+                            IN 操作符允许我们在 WHERE 子句中规定多个值。（与 OR 是相同的功能）
 
                             SELECT column_name(s) FROM table_name WHERE column_name IN (value1, value2, ...)
 
@@ -159,6 +193,7 @@ SQL(Structured Query Language)  是结构化查询语言的缩写
                         JOIN 关键字
                             连接是另一种类型的多表查询。连接查询对多个表进行 JOIN 运算，简单地说，就是先确定一个主表作为结果集，
                                 然后，把其他表的行有选择性地“连接”在主表结果集上
+                            使用 JOIN 联结时，联结条件用特定的 ON 子句，而不是 WHERE 子句。但是传递给 ON 的实际条件与传递给 WHERE 的相同
 
                             INNER JOIN  内连接（两个表的交集）
                                 INNER JOIN 与 JOIN 是相同的。
@@ -406,6 +441,7 @@ SQL(Structured Query Language)  是结构化查询语言的缩写
                 SELECT COUNT(*) num FROM table_name    给返回列起别名为 num，默认的返回列名为 COUNT(*)
 
                 COUNT(column)           返回某列的行数(不包括 NULL 值)     没有匹配行，则返回 0
+                    如果指定列名，则 COUNT() 函数会忽略指定列的值为空的行，但如果 COUNT() 函数中使用的是星号（*），则不会忽略
                 SUM(column)             返回某列的总和                    没有匹配行，则返回 NULL
                 MAX(column)             返回某列的最高值                  没有匹配行，则返回 NULL
                 MIN(column)             返回某列的最低值                  没有匹配行，则返回 NULL

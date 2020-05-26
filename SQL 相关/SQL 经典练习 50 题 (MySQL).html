@@ -291,6 +291,7 @@
         order by a.score desc;
 
     13. 按平均成绩从高到低显示所有学生的所有课程的成绩以及平均成绩
+        (以下写法都不严谨，因为默认给定了 01、02、03，而不是从 courses 表中查出来的)
         select st.*,
         sum(case when a.course_id='01' then a.score else null end) as 语文,
         sum(case when a.course_id='02' then a.score else null end) as 数学,
