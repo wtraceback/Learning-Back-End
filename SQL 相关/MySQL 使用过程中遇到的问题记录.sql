@@ -31,15 +31,41 @@
     select Now();
 
 
-4、时间相关的函数
+4、时间相关的函数(https://www.w3school.com.cn/sql/sql_dates.asp)
     YEAR()          将时间参数传递进去，可以获得当前的年份 如：select YEAR( now() );  可以获取出当前的年份
     MONTH()         将时间参数传递进去，可以获得当前的月份
+    WEEK()          该函数返回日期的星期数
     DAY()           将时间参数传递进去，可以获得当前的天数
     NOW()           可以获取当前的 年月日 时分秒
 
-    date_format(date, format)            能够把一个日期/时间转换成各种各样的字符串格式
-        select date_format(now(), '%Y%m%d%H%i%s');                      -- 20200526203638
-        select date_format('2020-05-26 20:36:38', '%Y%m%d%H%i%s');      -- 20200526203638
+    增加日期
+        DATE_ADD(date, INTERVAL expr type)
+            DATE_ADD(NOW(), interval 1 MONTH)
+            DATE_ADD(NOW(), interval 1 DAY)
+    提取日期
+        EXTRACT(unit FROM date);
+    获取指定格式的日期
+        date_format(date, format)            能够把一个日期/时间转换成各种各样的字符串格式
+            select date_format(now(), '%Y%m%d%H%i%s');                      -- 20200526203638
+            select date_format('2020-05-26 20:36:38', '%Y%m%d%H%i%s');      -- 20200526203638
 
-    str_to_date(str, format)       能够把一个字符串转换成日期格式，也可以转换为时间
-         select str_to_date('2020/05/26 20:43:30', '%Y/%m/%d %H:%i:%s');     -- 2020-05-26 02:43:30
+
+5、case when then else end
+    case 具有两种格式:
+    1、简单 case 函数
+        case sex
+            when '1' then '男'
+            when '2' then '女'
+            else '其他'
+        end
+
+    2、case 搜索函数
+        case
+            when sex = '1' then '男'
+            when sex = '2' then '女'
+            else '其他'
+        end
+
+
+6、字符串拼接
+    CONCAT(string1, string2)
