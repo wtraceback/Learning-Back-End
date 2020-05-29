@@ -269,7 +269,28 @@
         and course_id in (select course_id from scores where student_id='01'));
 
     9. 查询和" 01 "号的同学学习的课程完全相同的其他同学的信息
-        目前还想不出方法
+        以下两个写法是网上看别人写的，自己水平还是不够啊
+        （思路：
+            计算被查询者的课程总数，找出相同总数课程的人；
+            筛选出被查询者没学过的课程，过滤掉学过该课程的人）
+        select * from students as st
+        where st.id in (select student_id from scores       -- 获取与被查询者具有相同课程数的同学
+                            group by student_id having count(course_id) = (
+                                select count(course_id) from scores
+                                    where student_id='01') )
+            and st.id not in (select student_id from scores where course_id in  -- 获取被查询者未曾学过的课程，并过滤掉学过该课程的人
+                                (select id from courses where id not in
+                                    (select course_id from scores where student_id='01')
+                                )
+                             )
+            and st.id != '01';
+
+        第二种写法（思路：将每个人的课程使用 group_concat 函数串成字符串然后再比较）
+        SELECT t3.* FROM (select student_id, group_concat(course_id ORDER BY course_id) as group1
+                            FROM scores WHERE student_id <> '01' GROUP BY student_id) as t1
+        INNER JOIN (SELECT group_concat(course_id ORDER BY course_id) as group2
+                        FROM scores WHERE student_id = '01' GROUP BY student_id) as t2 ON t1.group1 = t2.group2
+        INNER JOIN students t3 ON t1.student_id = t3.id;
 
     10. 查询没学过"张三"老师讲授的任一门课程的学生姓名
         select st.name from students AS st
@@ -321,6 +342,34 @@
         from scores as a
         left join courses as co on co.id=a.course_id
         group by course_id;
+
+    15. 按各科成绩进行排序，并显示排名， Score 重复时保留名次空缺
+        15.1 按各科成绩进行排序，并显示排名， Score 重复时合并名次
+        select a.student_id,
+            @i:=(case when @course_id=a.course_id then @i+1 else 1 end) as i保留排名,
+            @k:=(case when @score=a.score then @k else @i end) as rank不保留排名,
+            @course_id:=a.course_id as course_id,
+            @score:=a.score as 分数
+        from (select b.student_id, b.course_id, b.score from scores as b order by b.course_id, b.score desc) as a,
+        (select @i:=0,@k:=0,@score:=0,@course_id:=0) as s;
+
+    16.  查询学生的总成绩，并进行排名，总分重复时保留名次空缺
+        16.1 查询学生的总成绩，并进行排名，总分重复时不保留名次空缺
+        select a.student_id,
+        @i:=@i+1 as 保留排名,
+        @k:=(case when @sumscore=a.sum_score then @k else @i end) as 不保留排名,
+        @sumscore:=a.sum_score as 总分数
+        from (select b.student_id, sum(b.score) as sum_score from scores as b group by b.student_id order by sum_score desc) as a,
+        (select @i:=0,@k:=0,@sumscore:=0) as varia;
+
+        以下展示一种错误的写法，执行顺序：先提取出列数据，然后再进行排名
+            select a.student_id,
+            @sumscore:=sum(a.score) as 总分数,
+            @i:=@i+1 as 保留排名,
+            @k:=(case when sum(a.score)=@sumscore then @k else @i end) as 不保留排名
+            from scores as a, (select @i:=0,@k:=0,@sumscore:=0) as b
+            group by a.student_id
+            order by sum(a.score) desc;
 
     17. 统计各科成绩各分数段人数：课程编号，课程名称，[100-85]，[85-70]，[70-60]，[60-0] 及所占百分比
         select a.course_id, co.name,
