@@ -240,8 +240,7 @@
         select st.*, b.coursecount, b.sumscore
         from students AS st
         LEFT JOIN (select a.student_id, COUNT(a.course_id) as coursecount, SUM(a.score) as sumscore
-        from scores AS a group by a.student_id) AS b
-        ON st.id=b.student_id
+                    from scores AS a group by a.student_id) AS b ON st.id=b.student_id
         order by st.id;
 
     4.1 查有成绩的学生信息
@@ -295,13 +294,13 @@
     10. 查询没学过"张三"老师讲授的任一门课程的学生姓名
         select st.name from students AS st
         where st.id not in (select student_id from scores
-        where course_id=(select id from courses where teacher_id in (select id from teachers where name='张三')));
+                    where course_id=(select id from courses where teacher_id in (select id from teachers where name='张三')));
 
     11. 查询两门及其以上不及格课程的同学的学号，姓名及其平均成绩
         select st.*, AVG(a.score) from students as st
         left join scores as a on a.student_id=st.id
         where st.id in
-        (select b.student_id from (select * from scores where score<60) AS b group by b.student_id having count(b.student_id)>=2)
+            (select b.student_id from (select * from scores where score<60) AS b group by b.student_id having count(b.student_id)>=2)
         group by st.id;
 
     12. 检索" 01 "课程分数小于 60，按分数降序排列的学生信息
@@ -385,6 +384,21 @@
         left join courses as co on a.course_id=co.id
         group by a.course_id;
 
+    18. 查询各科成绩前三名的记录
+        （where 中的 select 是保证：遍历所有记录，取每条记录与当前记录做比较，
+        只有当 scores 表中同一课程不超过 3 个分数比当前分数高时，这个分数才算是分数排行的前三名。
+        有一个局限：假如最高的分数有 4 个人并列，那么会列出这四个人，后面第二分数和第三分数将不会显示）
+        select a.* from scores as a
+        where (select count(b.score) from scores as b where b.course_id=a.course_id and b.score > a.score) < 3
+        order by course_id, score desc;
+
+        网上的一个案例
+        select a.*
+        from scores as a
+        left join scores as b on a.course_id=b.course_id and a.score < b.score
+        group by a.student_id, a.course_id, a.score
+        HAVING COUNT(b.student_id)<3
+        ORDER BY a.course_id, a.score DESC;
 
     19. 查询每门课程被选修的学生数
         select b.course_id, a.name, count(b.student_id) as 人数
@@ -503,6 +517,12 @@
             left join scores as b on b.course_id=a.course_id and b.score=a.score
             where st.id=b.student_id
             order by b.course_id;
+
+    36. 查询每门课成绩最好的前两名
+        select *
+        from scores as a
+        where (select count(b.score) from scores as b where b.course_id=a.course_id and b.score>a.score) < 2
+        order by a.course_id, a.score desc;
 
     37. 统计每门课程的学生选修人数（超过 5 人的课程才统计）
         select course_id, count(course_id) as 选修人数
