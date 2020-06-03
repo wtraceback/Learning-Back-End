@@ -400,6 +400,28 @@
         HAVING COUNT(b.student_id)<3
         ORDER BY a.course_id, a.score DESC;
 
+        第三种解法：（如果第一名为多个人并列的分数，那么也会存在没有取完的情况）
+        (
+            select * from scores
+            where course_id='01'
+            order by score desc
+            LIMIT 2
+        )
+        UNION ALL
+        (
+            select * from scores
+            where course_id='02'
+            order by score desc
+            LIMIT 2
+        )
+        UNION ALL
+        (
+            select * from scores
+            where course_id='03'
+            order by score desc
+            LIMIT 2
+        );
+
     19. 查询每门课程被选修的学生数
         select b.course_id, a.name, count(b.student_id) as 人数
         from courses as a, scores as b

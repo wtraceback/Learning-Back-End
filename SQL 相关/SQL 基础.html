@@ -96,60 +96,6 @@ SQL(Structured Query Language)  是结构化查询语言的缩写
                         AND、OR 和 NOT 运算符用于基于一个以上的条件对记录进行过滤
 
 
-                        DISTINCT 关键字
-                            在表中，可能会包含重复值。使用关键词 DISTINCT 可以返回唯一不同的值
-                            SELECT DISTINCT column_name FROM table_name             // 对获取到的数据去重
-
-                            但是有特殊的情况: DISTINCT 默认作用于所有列
-                            SELECT DISTINCT column_name1, column_name2 FROM table_name
-                            (检索两列，由于指定的两列不完全相同，因此 DISTINCT 在此情况下是无效的，所有的行还是会被检索出来)
-
-
-                        GROUP BY 语句用于对指定的列进行分组
-                            GROUP BY 子句必须出现在 WHERE 子句之后，ORDER BY 子句之前
-                            SELECT * FROM table_name GROUP BY column_name, column_name2;
-
-
-                        HAVING 过滤分组
-                            HAVING 非常类似于 WHERE，如果不指定 GROUP BY，则大多数 DBMS 会同等对待它们，也就是大部分的 WHERE 子句都可以用 HAVING 来替代。
-                            因此，使用 HAVING 时应该结合 GROUP BY 子句，而 WHERE 子句用于标准的行级过滤。
-
-                            两者之间的差别是：
-                                WHERE 过滤行，而 HAVING 过滤分组。
-                                WHERE 在数据分组前进行过滤，HAVING 在数据分组后进行过滤。这是一个重要的区别，WHERE 排除的行不包括在分组中。这可能会改变计算值，
-                                    从而影响 HAVING 子句中基于这些值过滤掉的分组。
-
-
-                        ORDER BY 语句用于对结果集进行排序。（通常 ORDER BY 都是放在 SELECT 语句的最后一句，不然会出现错误消息）
-                            一般 ORDER BY 子句使用的列将是为显示而选择的列，但是，也可以用非检索列来排序
-                            支持的排序顺序方法
-                                列名排序
-                                相对列位置排序（1、2、3...）
-                            排序方向
-                                降序：使用 DESC 关键字
-                                升序：默认为升序；或使用 ASC 关键字
-
-                            SELECT column_name FROM table_name ORDER BY column_name
-                            SELECT column_name1, column_name2 FROM table_name ORDER BY column_name1, column_name2
-                                首先按照 列名称1 排序，如果列名称1有重复的数据，则重复的数据再按照 列名称2 排序
-                            SELECT column_name1, column_name2 FROM table_name ORDER BY column_name1 DESC, column_name2 ASC
-                                首先按照 列名称1 降序排序，如果列名称1有重复的数据，则重复的数据再按照 列名称2 升序排序
-
-                            ORDER BY 语句默认按照升序对记录进行排序。如果希望按照降序对记录进行排序，可以使用 DESC 关键字
-
-
-                        LIMIT（分页查询）
-                            用于规定要返回的记录的数目
-                            SELECT column_name(s) FROM table_name LIMIT number1 OFFSET number2
-
-                            LIMIT 总是设定为 pageSize
-                            OFFSET 计算公式为 pageSize * (pageIndex - 1)
-
-                            限制每页最多十条记录，显示第一页的数据 LIMIT 10 === LIMIT 10 OFFSET 0
-                            限制每页最多十条记录，显示第二页的数据 LIMIT 10 OFFSET 10
-                                pageIndex 从 1 开始
-
-
                         LIKE 操作符
                             LIKE 操作符用于在 WHERE 子句中搜索列中的指定模式。
                                 "%" 可用于定义通配符（模式中缺少的字母）。
@@ -182,59 +128,123 @@ SQL(Structured Query Language)  是结构化查询语言的缩写
                                 SELECT column_name(s) FROM table_name WHERE column_name NOT BETWEEN value1 AND value2
 
 
-                        AS 操作符
-                            可以为列名称和表名称指定别名（Alias）。
-                            表的 SQL Alias 语法 （在多个表格时，简化表名的写法，方便各个表列名的编写）
-                                SELECT column_name(s) FROM table_name AS alias_name
-                            列的 SQL Alias 语法（获取到的数据的列名称的改变）
-                                SELECT column_name AS alias_name FROM table_name
+                        EXISTS 运算符
+                            EXISTS 运算符用于判断查询子句是否有记录，如果有一条或多条记录存在返回 True，否则返回 False。
 
 
-                        JOIN 关键字
-                            连接是另一种类型的多表查询。连接查询对多个表进行 JOIN 运算，简单地说，就是先确定一个主表作为结果集，
-                                然后，把其他表的行有选择性地“连接”在主表结果集上
-                            使用 JOIN 联结时，联结条件用特定的 ON 子句，而不是 WHERE 子句。但是传递给 ON 的实际条件与传递给 WHERE 的相同
+                    DISTINCT 关键字
+                        在表中，可能会包含重复值。使用关键词 DISTINCT 可以返回唯一不同的值
+                        SELECT DISTINCT column_name FROM table_name             // 对获取到的数据去重
 
-                            INNER JOIN  内连接（两个表的交集）
-                                INNER JOIN 与 JOIN 是相同的。
-                                在表中存在至少一个匹配时，INNER JOIN 关键字返回行。
-                                    SELECT t1.column_name1(s) t2.column_name2(s) FROM table_name1 AS t1
-                                    INNER JOIN table_name2 AS t2 ON t1.column_name1=t2.column_name2
-
-                                    等同于下方的 SQL 语句
-                                    SELECT t1.column1, t1.column2, t2.column1 FROM table_name1 as t1, table_name1 as t2 WHERE t1.column1 = t2.column1
-
-                                    INNER JOIN查询的写法是：
-                                        1、先确定主表，仍然使用FROM <表1>的语法
-                                        2、再确定需要连接的表，使用INNER JOIN <表2>的语法
-                                        3、然后确定连接条件，使用ON <条件...>，这里的条件是t1.column1 = t2.column2，表示table1表的column1列与table2表的column2列相同的行需要连接
-                                        4、可选：加上WHERE子句、ORDER BY等子句
-
-                            LEFT JOIN 关键字（左表的全部 --> 包含了两个表的交集）
-                                LEFT JOIN 关键字从左表 (table_name1) 那里返回所有的行，即使在右表 (table_name2) 中没有匹配的行
-                                SELECT column_name(s) FROM table_name1
-                                LEFT JOIN table_name2 ON table_name1.column_name=table_name2.column_name
-
-                            RIGHT JOIN 关键字（右表的全部 --> 包含了两个表的交集）
-                                RIGHT JOIN 关键字会右表 (table_name2) 那里返回所有的行，即使在左表 (table_name1) 中没有匹配的行
-                                SELECT column_name(s) FROM table_name1
-                                RIGHT JOIN table_name2 ON table_name1.column_name=table_name2.column_name
-
-                            FULL JOIN 关键字（两个表的并集）
-                               只要其中某个表存在匹配，FULL JOIN 关键字就会返回行
-                               SELECT column_name(s) FROM table_name1
-                               FULL JOIN table_name2 ON table_name1.column_name=table_name2.column_name
+                        但是有特殊的情况: DISTINCT 默认作用于所有列
+                        SELECT DISTINCT column_name1, column_name2 FROM table_name
+                        (检索两列，由于指定的两列不完全相同，因此 DISTINCT 在此情况下是无效的，所有的行还是会被检索出来)
 
 
-                        UNION 操作符
-                            UNION 操作符用于合并两个或多个 SELECT 语句的结果集。
-                                UNION 内部的 SELECT 语句必须拥有相同数量的列。列也必须拥有相似的数据类型。同时，每条 SELECT 语句中的列的顺序必须相同。
-                                SELECT column_name(s) FROM table_name1
-                                UNION
-                                SELECT column_name(s) FROM table_name2
+                    GROUP BY 语句用于对指定的列进行分组
+                        GROUP BY 子句必须出现在 WHERE 子句之后，ORDER BY 子句之前
+                        SELECT * FROM table_name GROUP BY column_name, column_name2;
 
-                                UNION 结果集中的列名总是等于 UNION 中第一个 SELECT 语句中的列名。
 
+                    HAVING 过滤分组
+                        HAVING 非常类似于 WHERE，如果不指定 GROUP BY，则大多数 DBMS 会同等对待它们，也就是大部分的 WHERE 子句都可以用 HAVING 来替代。
+                        因此，使用 HAVING 时应该结合 GROUP BY 子句，而 WHERE 子句用于标准的行级过滤。WHERE 关键字无法与聚合函数一起使用。这时候可以用 HAVING。
+
+                        两者之间的差别是：
+                            WHERE 过滤行，而 HAVING 过滤分组。
+                            WHERE 在数据分组前进行过滤，HAVING 在数据分组后进行过滤。这是一个重要的区别，WHERE 排除的行不包括在分组中。这可能会改变计算值，
+                                从而影响 HAVING 子句中基于这些值过滤掉的分组。
+
+
+                    ORDER BY 语句用于对结果集进行排序。（通常 ORDER BY 都是放在 SELECT 语句的最后一句，不然会出现错误消息）
+                        一般 ORDER BY 子句使用的列将是为显示而选择的列，但是，也可以用非检索列来排序
+                        支持的排序顺序方法
+                            列名排序
+                            相对列位置排序（1、2、3...）
+                        排序方向
+                            降序：使用 DESC 关键字
+                            升序：默认为升序；或使用 ASC 关键字
+
+                        SELECT column_name FROM table_name ORDER BY column_name
+                        SELECT column_name1, column_name2 FROM table_name ORDER BY column_name1, column_name2
+                            首先按照 列名称1 排序，如果列名称1有重复的数据，则重复的数据再按照 列名称2 排序
+                        SELECT column_name1, column_name2 FROM table_name ORDER BY column_name1 DESC, column_name2 ASC
+                            首先按照 列名称1 降序排序，如果列名称1有重复的数据，则重复的数据再按照 列名称2 升序排序
+
+                        ORDER BY 语句默认按照升序对记录进行排序。如果希望按照降序对记录进行排序，可以使用 DESC 关键字
+
+
+                    LIMIT（分页查询）
+                        用于规定要返回的记录的数目
+                        SELECT * FROM table LIMIT [offset,] rows | rows OFFSET offset
+                        
+                            LIMIT 子句可以被用于强制 SELECT 语句返回指定的记录数。
+                            LIMIT 接受一个或两个数字参数。参数必须是一个整数常量。
+                            如果给定两个参数:
+                                第一个参数(offset)指定第一个返回记录行的偏移量，初始记录行的偏移量是 0(而不是 1)
+                                第二个参数(rows)指定返回记录行的最大数目。
+
+                            1、检索记录行 6-15
+                                SELECT * FROM table LIMIT 5,10;
+                            2、如果只给定一个参数，它表示返回最大的记录行数目，检索前 5 个记录行。换句话说，LIMIT n 等价于 LIMIT 0,n。
+                                SELECT * FROM table LIMIT 5;
+                            3、为了检索从某一个偏移量到记录集的结束所有的记录行，可以指定第二个参数为 -1：
+                                SELECT * FROM table LIMIT 95,-1;
+
+
+                    AS 操作符
+                        可以为列名称和表名称指定别名（Alias）。
+                        表的 SQL Alias 语法 （在多个表格时，简化表名的写法，方便各个表列名的编写）
+                            SELECT column_name(s) FROM table_name AS alias_name
+                        列的 SQL Alias 语法（获取到的数据的列名称的改变）
+                            SELECT column_name AS alias_name FROM table_name
+
+
+                    JOIN 关键字
+                        连接是另一种类型的多表查询。连接查询对多个表进行 JOIN 运算，简单地说，就是先确定一个主表作为结果集，
+                            然后，把其他表的行有选择性地“连接”在主表结果集上
+                        使用 JOIN 联结时，联结条件用特定的 ON 子句，而不是 WHERE 子句。但是传递给 ON 的实际条件与传递给 WHERE 的相同
+
+                        INNER JOIN  内连接（两个表的交集）
+                            INNER JOIN 与 JOIN 是相同的。
+                            在表中存在至少一个匹配时，INNER JOIN 关键字返回行。
+                                SELECT t1.column_name1(s) t2.column_name2(s) FROM table_name1 AS t1
+                                INNER JOIN table_name2 AS t2 ON t1.column_name1=t2.column_name2
+
+                                等同于下方的 SQL 语句
+                                SELECT t1.column1, t1.column2, t2.column1 FROM table_name1 as t1, table_name1 as t2 WHERE t1.column1 = t2.column1
+
+                                INNER JOIN查询的写法是：
+                                    1、先确定主表，仍然使用FROM <表1>的语法
+                                    2、再确定需要连接的表，使用INNER JOIN <表2>的语法
+                                    3、然后确定连接条件，使用ON <条件...>，这里的条件是t1.column1 = t2.column2，表示table1表的column1列与table2表的column2列相同的行需要连接
+                                    4、可选：加上WHERE子句、ORDER BY等子句
+
+                        LEFT JOIN 关键字（左表的全部 --> 包含了两个表的交集）
+                            LEFT JOIN 关键字从左表 (table_name1) 那里返回所有的行，即使在右表 (table_name2) 中没有匹配的行
+                            SELECT column_name(s) FROM table_name1
+                            LEFT JOIN table_name2 ON table_name1.column_name=table_name2.column_name
+
+                        RIGHT JOIN 关键字（右表的全部 --> 包含了两个表的交集）
+                            RIGHT JOIN 关键字会右表 (table_name2) 那里返回所有的行，即使在左表 (table_name1) 中没有匹配的行
+                            SELECT column_name(s) FROM table_name1
+                            RIGHT JOIN table_name2 ON table_name1.column_name=table_name2.column_name
+
+                        FULL JOIN 关键字（两个表的并集）
+                           只要其中某个表存在匹配，FULL JOIN 关键字就会返回行
+                           SELECT column_name(s) FROM table_name1
+                           FULL JOIN table_name2 ON table_name1.column_name=table_name2.column_name
+
+
+                    UNION 操作符
+                        UNION 操作符用于合并两个或多个 SELECT 语句的结果集。
+                            UNION 内部的 SELECT 语句必须拥有相同数量的列。列也必须拥有相似的数据类型。同时，每条 SELECT 语句中的列的顺序必须相同。
+                            不过使用 UNION ，输出的值会将重复的值删掉
+                            SELECT column_name(s) FROM table_name1
+                            UNION
+                            SELECT column_name(s) FROM table_name2
+
+                        UNION ALL 命令和 UNION 命令几乎是等效的，不过 UNION ALL 命令会列出所有的值。
 
         修改数据
             INSERT INTO 语句

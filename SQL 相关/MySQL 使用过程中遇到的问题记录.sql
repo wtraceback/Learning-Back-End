@@ -37,17 +37,19 @@
     WEEK()          该函数返回日期的星期数
     DAY()           将时间参数传递进去，可以获得当前的天数
     NOW()           可以获取当前的 年月日 时分秒
-
-    增加日期
-        DATE_ADD(date, INTERVAL expr type)
-            DATE_ADD(NOW(), interval 1 MONTH)
-            DATE_ADD(NOW(), interval 1 DAY)
-    提取日期
-        EXTRACT(unit FROM date);
-    获取指定格式的日期
-        date_format(date, format)            能够把一个日期/时间转换成各种各样的字符串格式
-            select date_format(now(), '%Y%m%d%H%i%s');                      -- 20200526203638
-            select date_format('2020-05-26 20:36:38', '%Y%m%d%H%i%s');      -- 20200526203638
+    EXTRACT()       用于返回日期/时间的单独部分，比如年、月、日、小时、分钟等等
+        EXTRACT(unit FROM date)
+    DATE_ADD()      增加日期，增加天数或月份
+        DATE_ADD(NOW(), interval 1 MONTH)
+        DATE_ADD(NOW(), interval 1 DAY)
+    DATEDIFF()      返回两个日期之间的天数
+        语法 DATEDIFF(date1, date2)
+            SELECT DATEDIFF('2019-12-30','2019-12-29')      返回 1
+            SELECT DATEDIFF('2019-12-29','2019-12-30')      返回 -1
+    DATE_FORMAT()   获取指定格式的日期，能够把一个日期/时间转换成各种各样的字符串格式
+        DATE_FORMAT(date, format)
+        select date_format(now(), '%Y%m%d%H%i%s');                      -- 20200526203638
+        select date_format('2020-05-26 20:36:38', '%Y%m%d%H%i%s');      -- 20200526203638
 
 
 5、case when then else end
@@ -69,3 +71,14 @@
 
 6、字符串拼接
     CONCAT(string1, string2)
+    group_concat
+
+
+7、SQL 查询结果自己添加一列自增字段
+    select 表名.*, @rank:=@rank+1 as r
+    from 表名, (select @rank:=0) as 别名;
+
+
+8、IFNULL 函数
+    IFNULL() 函数用于判断第一个表达式是否为 NULL，如果为 NULL 则返回第二个参数的值，如果不为 NULL 则返回第一个参数的值。
+    IFNULL(expression, alt_value)
