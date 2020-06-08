@@ -385,11 +385,8 @@
         group by a.course_id;
 
     18. 查询各科成绩前三名的记录
-        （where 中的 select 是保证：遍历所有记录，取每条记录与当前记录做比较，
-        只有当 scores 表中同一课程不超过 3 个分数比当前分数高时，这个分数才算是分数排行的前三名。
-        有一个局限：假如最高的分数有 4 个人并列，那么会列出这四个人，后面第二分数和第三分数将不会显示）
         select a.* from scores as a
-        where (select count(b.score) from scores as b where b.course_id=a.course_id and b.score > a.score) < 3
+        where (select count(distinct b.score) from scores as b where b.course_id=a.course_id and b.score > a.score) < 3
         order by course_id, score desc;
 
         网上的一个案例
@@ -397,29 +394,29 @@
         from scores as a
         left join scores as b on a.course_id=b.course_id and a.score < b.score
         group by a.student_id, a.course_id, a.score
-        HAVING COUNT(b.student_id)<3
+        HAVING COUNT(distinct b.student_id)<3
         ORDER BY a.course_id, a.score DESC;
 
-        第三种解法：（如果第一名为多个人并列的分数，那么也会存在没有取完的情况）
+        第三种解法：（不推荐   如果第一名为多个人并列的分数，会存在没有取完的情况）
         (
             select * from scores
             where course_id='01'
             order by score desc
-            LIMIT 2
+            LIMIT 3
         )
         UNION ALL
         (
             select * from scores
             where course_id='02'
             order by score desc
-            LIMIT 2
+            LIMIT 3
         )
         UNION ALL
         (
             select * from scores
             where course_id='03'
             order by score desc
-            LIMIT 2
+            LIMIT 3
         );
 
     19. 查询每门课程被选修的学生数
@@ -543,7 +540,7 @@
     36. 查询每门课成绩最好的前两名
         select *
         from scores as a
-        where (select count(b.score) from scores as b where b.course_id=a.course_id and b.score>a.score) < 2
+        where (select count(distinct b.score) from scores as b where b.course_id=a.course_id and b.score>a.score) < 2
         order by a.course_id, a.score desc;
 
     37. 统计每门课程的学生选修人数（超过 5 人的课程才统计）
