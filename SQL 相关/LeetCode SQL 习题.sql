@@ -36,6 +36,29 @@
     END
 
 
+178. 分数排名
+    select so.Score, CONVERT(so.r,SIGNED) as 'Rank'
+    from (select s.Score,
+    @i:=(case when s.Score=@s_score then @i else @i+1 end) as r,
+    @s_score:=s.Score
+    from (select Score from Scores order by Score desc) as s, (select @i:=0,@s_score:=-1) as m) as so
+
+
+    解法二：
+    SELECT Score, (SELECT count(DISTINCT score) FROM Scores WHERE score >= s.score) AS Rank
+    FROM Scores as s
+    ORDER BY Score DESC;
+
+    解法三：
+    select Score, DENSE_RANK() over (order by Score desc) as 'Rank'
+    from Scores
+
+    解法四：
+    select Score, @rank := @rank + if(@prev=(@prev:=Score),0,1) as Rank
+    from Scores, (select @rank:=0, @prev:=-1) t
+    order by Score desc
+
+
 180. 连续出现的数字
     select distinct a.Num as ConsecutiveNums
     from Logs as a, Logs as b, Logs as c
@@ -78,6 +101,14 @@
     JOIN Department as d ON e.DepartmentId = d.Id
     WHERE (e.DepartmentId , e.Salary) IN
         (SELECT DepartmentId, MAX(Salary) FROM Employee GROUP BY DepartmentId);
+
+
+185. 部门工资前三高的所有员工
+    select d.Name as Department, e.Name as Employee, e.Salary
+    from Employee as e
+    join Department as d on d.Id=e.DepartmentId
+    where (select count(distinct m.Salary) from Employee as m where e.DepartmentId =m.DepartmentId  and m.Salary > e.Salary) < 3
+    order by Department, e.Salary desc;
 
 
 196. 删除重复的电子邮箱
@@ -138,3 +169,21 @@
         WHEN 'm' THEN 'f'
         ELSE 'm'
     END;
+
+
+1179. 重新格式化部门表
+    select id,
+    MAX(case when month='Jan' then revenue else NULL end) as Jan_Revenue,
+    MAX(case when month='Feb' then revenue else NULL end) as Feb_Revenue,
+    MAX(case when month='Mar' then revenue else NULL end) as Mar_Revenue,
+    MAX(case when month='Apr' then revenue else NULL end) as Apr_Revenue,
+    MAX(case when month='May' then revenue else NULL end) as May_Revenue,
+    MAX(case when month='Jun' then revenue else NULL end) as Jun_Revenue,
+    MAX(case when month='Jul' then revenue else NULL end) as Jul_Revenue,
+    MAX(case when month='Aug' then revenue else NULL end) as Aug_Revenue,
+    MAX(case when month='Sep' then revenue else NULL end) as Sep_Revenue,
+    MAX(case when month='Oct' then revenue else NULL end) as Oct_Revenue,
+    MAX(case when month='Nov' then revenue else NULL end) as Nov_Revenue,
+    MAX(case when month='Dec' then revenue else NULL end) as Dec_Revenue
+    from Department
+    group by id
