@@ -143,6 +143,25 @@
     having count(distinct student) >= 5;
 
 
+601. 体育馆的人流量
+    select distinct a.* from
+    stadium as a, stadium as b, stadium as c
+    where (a.id-b.id=-1 and b.id-c.id=-1 and a.people>=100 and b.people>=100 and c.people>=100)
+    or (a.id-b.id=1 and b.id-c.id=1 and a.people>=100 and b.people>=100 and c.people>=100)
+    or (a.id-b.id=1 and a.id-c.id=-1 and a.people>=100 and b.people>=100 and c.people>=100)
+    order by a.id
+
+    解法二：
+    select distinct a.* from
+    stadium as a, stadium as b, stadium as c
+    where a.people>=100 and b.people>=100 and c.people>=100 and (
+        (a.id-b.id=-1 and b.id-c.id=-1) or
+        (a.id-b.id=1 and b.id-c.id=1) or
+        (a.id-b.id=1 and a.id-c.id=-1)
+    )
+    order by a.id
+
+
 620. 有趣的电影
     select *
     from cinema
@@ -154,6 +173,25 @@
     from cinema
     where description <> 'boring' and MOD(id, 2) = 1
     order by rating desc;
+
+
+626. 换座位
+    select if(
+            MOD(n.num, 2)=1 and n.num=s.id,
+            s.id,
+            if(MOD(s.id, 2)=1, s.id+1, s.id-1)
+        ) as 'id', s.student
+    from seat as s, (select count(*) as num from seat) as n
+    order by id
+
+    解法二：
+    select if(
+            (id%2=1 and id=(select max(id) from seat)),
+            id,
+            if(id%2=1,id+1,id-1)
+        ) as id, student
+    from seat
+    order by id
 
 
 627. 交换工资（交换性别）
