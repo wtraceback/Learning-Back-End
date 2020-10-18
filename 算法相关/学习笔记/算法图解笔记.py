@@ -236,6 +236,13 @@
                 较低的填装因子
                 良好的散列函数
 
+    散列表是无序的，添加键-值对的顺序无关紧要
+        为什么是无序的？
+            散列表由散列函数和数组组成，由于其内部的原理，为了避免冲突进而提高性能（查找、插入和删除的速度）
+                较低的填装因子
+                良好的散列函数
+                    良好的散列函数让数组中的值呈均匀分布
+
     可能根本不需要自己去实现散列表，任一优秀的语言都提供了散列表实现
         Python 提供的散列表实现为字典：（字典 book 也可称为散列表，散列表由键和值组成，并将键映射到值）
             >>> book = dict()
@@ -263,3 +270,186 @@
         散列表可用于缓存数据（例如，在 Web 服务器上）。
         散列表非常适合用于防止重复。
         目前已经讲到的数据结构（数组、链表、栈--不能用于查找、散列表）。
+
+
+第 6 章（广度优先搜索）：
+    从 A 到 B 的最短路径，这种问题被称为 “最短路径问题”
+    解决“最短路径问题”的算法被称为 “广度优先搜索”
+
+    确定从 A地 到 B地，需要两个步骤：
+        （1）使用图来建立问题模型
+        （2）使用“广度优先搜索”解决问题
+
+    图是什么？
+        图模拟一组连接，图用于模拟不同的东西是如何相连的。
+        图由节点和边组成：
+            一个节点可能与众多节点直接相连，这些节点被称为邻居
+             ------      边       ------
+            | 节点 |   ------>   | 节点 |
+             ------               ------
+
+             有向图（关系是单向的）
+             无向图（关系是双向的）
+
+        树：
+            树是一种特殊的图，树是图的子集，因此树都是图，但图可能是树，也可能不是。
+
+    广度优先搜索
+        广度优先搜索是一种用于图的查找算法；二分查找也是一种查找算法，不过只能在有序的元素列表中查找元素
+        广度优先搜索可帮助回答两类问题：
+            第一类问题：从节点A出发，有前往节点B的路径吗？
+            第二类问题：从节点A出发，前往节点B的哪条路径最短？
+
+        队列：先进先出 的数据结构
+        栈：后进先出 的数据结构
+
+    代码示例：
+        图：
+            # 图的结构
+            # graph = {
+            #     'you': ['alice', 'bob', 'claire'],
+            #     'alice': ['anuj', 'peggy'],
+            #     'bob': ['peggy'],
+            #     'claire': ['thom', 'jonny'],
+            #     'anuj': [],
+            #     'peggy': [],
+            #     'thom': [],
+            #     'jonny': []
+            # }
+            graph = {}
+            graph['you'] = ['alice', 'bob', 'claire']
+            graph['alice'] = ['anuj', 'peggy']
+            graph['bob'] = ['peggy']
+            graph['claire'] = ['thom', 'jonny']
+            graph['anuj'] = []
+            graph['peggy'] = []
+            graph['thom'] = []
+            graph['jonny'] = []
+
+        广度优先搜索代码：
+            from collections import deque
+
+            def person_is_seller(name):
+                return name[-1] == 'm'
+
+            def search(name):
+                search_queue = deque()
+                search_queue += graph[name]
+                # 处理过的节点
+                searched = []
+
+                while search_queue:
+                    person = search_queue.popleft()
+                    if person not in searched:
+                        if person_is_seller(person):
+                            print('{} is a mango seller!'.format(person))
+                            return True
+                        else:
+                            search_queue += graph[person]
+                            searched.append(person)
+
+                return False
+
+            search('you')
+
+    小结：
+        广度优先搜索指出是否有从 A 到 B 的路径。
+        如果有，广度优先搜索将找出最短路径。
+        面临类似于寻找最短路径的问题时，可尝试使用图来建立模型，再使用广度优先搜索来解决问题。
+        有向图中的边为箭头，箭头的方向指定了关系的方向，例如 rama --> adit 表示 rama 欠 adit 钱。
+        无向图中的边不带箭头，其中的关系是双向的，例如，ross -- rachel 表示 ross 与 rachel 约会，而 rachel 也与 roos 约会。
+        队列是先进先出（FIFO）的。
+        栈是后进先出（LIFO）的。
+        你需要按加入顺序检查搜索列表中的人，否则找到的就不是最短路径，因此搜索列表必须是队列。
+        对于检查过的人，务必不要再去检查，否则可能导致无限循环。
+
+
+第 7 章（狄克斯特拉算法）：
+    狄克斯特拉算法
+        狄克斯特拉算法用于每条边都有关联数字的图，这些数字称为权重。
+            带权重的图称为：加权图
+            不带权重的图称为：非加权图
+
+            计算非加权图中的最短路径，使用 “广度优先搜索”，找出的是段数最少的路径。
+            计算加权图中的最短路径，可使用 “狄克斯特拉算法”，找出最快的路径。
+            如果有负权边，就不能使用狄克斯特拉算法，应该使用 “贝尔曼-福德算法”
+                计算两点或两人之间的最短路径，最短路径指的并不一定是物理距离，也可能是让某种度量指标最小。
+
+        狄克斯特拉算法只适用于 有向无环图。
+
+    狄克斯特拉算法的 4 个步骤
+        （1）找出 “最便宜” 的节点，也就是可在最短时间内前往的节点。
+        （2）计算经该节点前往其各个邻居的开销，如果开销比原先的小，则更新其开销
+            （节点的开销指的是从起点出发前往该节点需要多长时间）
+        （3）重复上面的两个步骤
+                a、再次执行第一步
+                    找出“次便宜节点”
+                b、再次执行第二步
+                    更新经“次便宜节点”到各个邻居的开销（保留最小的开销）
+                c、直到对图中的每个节点都重复过了上面的两个步骤
+        （5）计算最终路径
+
+    代码示例：
+        准备工作：
+            # 图的结构
+            graph = {
+                'start': {
+                    'a': 6,
+                    'b': 2
+                },
+                'a': {
+                    'fin': 1
+                },
+                'b': {
+                    'a': 3,
+                    'fin': 5
+                },
+                'fin': {}
+            }
+
+            # 每一个节点的开销表：从起点出发前往该节点需要多长时间
+            costs = {
+                'a': 6,
+                'b': 2,
+                'fin': float('inf')
+            }
+
+            # 存储父节点的散列表
+            parents = {
+                'a': 'start',
+                'b': 'start',
+                'fin': None
+            }
+
+            # 记录处理过的节点
+            processed = []
+
+            def find_lowest_cost_node(costs):
+                lowest_cost = float('inf')
+                lowest_cost_node = None
+                for node in costs:
+                    cost = costs[node]
+                    if costs < lowest_cost and node not in processed:
+                        lowest_cost = cost
+                        lowest_cost_node = node
+                return lowest_cost_node
+
+            # 狄克斯特拉算法
+            # 在未处理的节点找出开销最小的节点
+            node = find_lowest_cost_node(costs)
+            while node is not None:
+                cost = costs[node]
+                neighbors = graph[node]
+                for n in neighbors.keys():
+                    new_cost = cost + neighbors[n]
+                    if costs[n] > new_cost:
+                        costs[n] = new_cost
+                        parents[n] = node
+                processed.append(node)
+                node = find_lowest_cost_node(costs)
+
+    小结：
+        广度优先搜索用于在非加权图中查找最短路径
+        狄克斯特拉算法用于加权图中查找最短路径
+        仅当权重为正时狄克斯特拉算法才管用
+        如果图中包含负权边，请使用贝尔曼-福德算法
